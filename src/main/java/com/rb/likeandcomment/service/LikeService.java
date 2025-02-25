@@ -37,7 +37,7 @@ public class LikeService {
             log.info("Like is getting updated");
         }else log.info("New like is adding");
         like.setLikedAt(Instant.now().toString());
-        notificationService.sendLikedNotification(likeDto.getPostId(),likeDto.getUserId(),likeDto.getType().toString());
+        notificationService.sendNotification(likeDto.getPostId(),likeDto.getUserId(),likeDto.getType().toString());
         return likeRepository.save(like);
     }
 

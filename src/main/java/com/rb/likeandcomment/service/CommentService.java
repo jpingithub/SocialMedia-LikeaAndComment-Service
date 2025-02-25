@@ -21,12 +21,14 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final ObjectMapper objectMapper;
     private final Checker checker;
+    private final NotificationService notificationService;
 
     public Comment commentOnPost(CommentDto commentDto){
         checker.checkUserExistence(commentDto.getUserId());
         checker.checkPostExistence(commentDto.getPostId());
         Comment comment = objectMapper.convertValue(commentDto, Comment.class);
         comment.setCommentedAt(Instant.now().toString());
+        notificationService.sendNotification(commentDto.getPostId(),commentDto.getUserId());
         return commentRepository.save(comment);
     }
 

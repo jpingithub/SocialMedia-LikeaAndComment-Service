@@ -21,7 +21,7 @@ public class Checker {
     public void checkUserExistence(String userId) throws UserException {
         try {
             userClient.getUserById(userId);
-        } catch (FeignException.BadRequest ex) {
+        } catch (FeignException.NotFound ex) {
             log.info("No user found to like");
             throw new UserException("No user found with id : " + userId);
         }
