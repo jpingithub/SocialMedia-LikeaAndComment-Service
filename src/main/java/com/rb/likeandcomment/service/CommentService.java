@@ -21,26 +21,25 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final ObjectMapper objectMapper;
     private final Checker checker;
-    private final NotificationService notificationService;
 
-    public Comment commentOnPost(CommentDto commentDto){
-        checker.checkUserExistence(commentDto.getUserId());
+    public Comment commentOnPost(String username, CommentDto commentDto) {
+        checker.checkUserExistence(username);
         checker.checkPostExistence(commentDto.getPostId());
         Comment comment = objectMapper.convertValue(commentDto, Comment.class);
         comment.setCommentedAt(Instant.now().toString());
-        notificationService.sendNotification(commentDto.getPostId(),commentDto.getUserId());
+        comment.setUserId(username);
         return commentRepository.save(comment);
     }
 
-    public List<Comment> getCommentsOf(Integer postId){
+    public List<Comment> getCommentsOf(Integer postId) {
         checker.checkPostExistence(postId);
         List<Comment> byPostId = commentRepository.findByPostId(postId);
-        if(!byPostId.isEmpty()){
-            log.info("{} comments found on post : {}",byPostId.size(),postId);
+        if (!byPostId.isEmpty()) {
+            log.info("{} comments found on post : {}", byPostId.size(), postId);
             return byPostId;
-        }else{
-            log.info("No comments found for the post : {}",postId);
-            throw new CommentException("No one commented on post : "+postId);
+        } else {
+            log.info("No comments found for the post : {}", postId);
+            throw new CommentException("No one commented on post : " + postId);
         }
     }
 

@@ -5,7 +5,6 @@ import lombok.Data;
 
 @Data
 public class LikeDto {
-    private String userId;
     private Integer postId;
     private LikeType type;
 }

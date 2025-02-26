@@ -22,8 +22,8 @@ public class LikeAndCommentController {
     private final CommentService commentService;
 
     @PostMapping("/likes")
-    public ResponseEntity<Like> like(@RequestBody LikeDto likeDto){
-        return new ResponseEntity<>(likeService.likeAPost(likeDto), HttpStatus.OK);
+    public ResponseEntity<Like> like(@RequestHeader("${customized-header-for-token}")String userName, @RequestBody LikeDto likeDto){
+        return new ResponseEntity<>(likeService.likeAPost(userName,likeDto), HttpStatus.OK);
     }
 
     @GetMapping("/likes/{postId}")
@@ -32,8 +32,8 @@ public class LikeAndCommentController {
     }
 
     @PostMapping("/comments")
-    public ResponseEntity<Comment> comment(@RequestBody CommentDto commentDto){
-        return new ResponseEntity<>(commentService.commentOnPost(commentDto), HttpStatus.OK);
+    public ResponseEntity<Comment> comment(@RequestHeader("${customized-header-for-token}")String userName,@RequestBody CommentDto commentDto){
+        return new ResponseEntity<>(commentService.commentOnPost(userName,commentDto), HttpStatus.OK);
     }
 
     @GetMapping("/comments/{postId}")
