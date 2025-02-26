@@ -21,6 +21,7 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final ObjectMapper objectMapper;
     private final Checker checker;
+    private final NotificationService notificationService;
 
     public Comment commentOnPost(String username, CommentDto commentDto) {
         checker.checkUserExistence(username);
@@ -28,6 +29,7 @@ public class CommentService {
         Comment comment = objectMapper.convertValue(commentDto, Comment.class);
         comment.setCommentedAt(Instant.now().toString());
         comment.setUserId(username);
+        notificationService.publishCommentEvent(username,commentDto.getPostId(), commentDto.getComment());
         return commentRepository.save(comment);
     }
 

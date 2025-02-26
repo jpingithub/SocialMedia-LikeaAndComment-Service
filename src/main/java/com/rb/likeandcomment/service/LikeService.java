@@ -22,6 +22,7 @@ public class LikeService {
     private final LikeRepository likeRepository;
     private final ObjectMapper objectMapper;
     private final Checker checker;
+    private final NotificationService notificationService;
 
     public Like likeAPost(String username, LikeDto likeDto) {
         checker.checkUserExistence(username);
@@ -36,6 +37,7 @@ public class LikeService {
             log.info("Like is getting updated");
         } else log.info("New like is adding");
         like.setLikedAt(Instant.now().toString());
+        notificationService.publishCommentEvent(username,likeDto.getPostId(), like.getType());
         return likeRepository.save(like);
     }
 
