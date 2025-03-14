@@ -1,7 +1,6 @@
 package com.rb.likeandcomment.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.rb.likeandcomment.client.NotificationClient;
 import com.rb.likeandcomment.dto.LikeDto;
 import com.rb.likeandcomment.entity.Like;
 import com.rb.likeandcomment.exception.LikeException;
@@ -25,30 +24,31 @@ public class LikeService {
     private final Checker checker;
     private final NotificationService notificationService;
 
-    public Like likeAPost(LikeDto likeDto){
-        checker.checkUserExistence(likeDto.getUserId());
+    public Like likeAPost(String username, LikeDto likeDto) {
+        checker.checkUserExistence(username);
         checker.checkPostExistence(likeDto.getPostId());
         Like like = objectMapper.convertValue(likeDto, Like.class);
         like.setLikedAt(Instant.now().toString());
-        Optional<Like> byUserIdAndPostId = likeRepository.findByUserIdAndPostId(likeDto.getUserId(), likeDto.getPostId());
-        if(byUserIdAndPostId.isPresent()){
+        like.setUserId(username);
+        Optional<Like> byUserIdAndPostId = likeRepository.findByUserIdAndPostId(username, likeDto.getPostId());
+        if (byUserIdAndPostId.isPresent()) {
             like = byUserIdAndPostId.get();
             like.setType(likeDto.getType());
             log.info("Like is getting updated");
-        }else log.info("New like is adding");
+        } else log.info("New like is adding");
         like.setLikedAt(Instant.now().toString());
-        notificationService.sendLikedNotification(likeDto.getPostId(),likeDto.getUserId(),likeDto.getType().toString());
+        notificationService.publishCommentEvent(username,likeDto.getPostId(), like.getType());
         return likeRepository.save(like);
     }
 
-    public List<Like> getLikesOf(Integer postId){
+    public List<Like> getLikesOf(Integer postId) {
         checker.checkPostExistence(postId);
         List<Like> byPostId = likeRepository.findByPostId(postId);
         if (!byPostId.isEmpty()) {
-            log.info("{} Likes found for the post : {} ",byPostId.size(),postId);
+            log.info("{} Likes found for the post : {} ", byPostId.size(), postId);
             return byPostId;
         } else {
-            log.info("No likes found for the post : {}",postId);
+            log.info("No likes found for the post : {}", postId);
             throw new LikeException("No one has liked this post yet");
         }
     }
